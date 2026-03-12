@@ -1,0 +1,5 @@
+{
+  "name": "TicketAuth - Blockchain Scanner",
+  "description": "A frontend for scanning and verifying blockchain-based event tickets via QR code.",
+  "requestFramePermissions": ["camera"]
+}

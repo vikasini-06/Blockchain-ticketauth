@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-scan: scan 2s ease-in-out infinite;
+
+  @keyframes scan {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(280px);
+    }
+  }
+}
+
+/* Custom styles for html5-qrcode */
+#reader {
+  border: none !important;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+#reader video {
+  object-fit: cover !important;
+  border-radius: 1rem;
+}
+
+#reader__dashboard_section_csr span {
+  display: none !important;
+}
+
+#reader__dashboard_section_swaplink {
+  display: none !important;
+}
+
+#reader__scan_region {
+  background: black;
+}
+
+#reader button {
+  background-color: #18181b !important;
+  color: #a1a1aa !important;
+  border: 1px solid #27272a !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  margin-top: 1rem !important;
+}
+
+#reader button:hover {
+  background-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
