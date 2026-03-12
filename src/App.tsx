@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { QrScanner } from './components/QrScanner';
 import { CheckCircle2, XCircle, Loader2, ScanLine, ShieldCheck, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { verifyTicket } from './services/api'; // ✅ Added API connection
 
 type ScanStatus = 'idle' | 'verifying' | 'valid' | 'invalid';
 
@@ -17,30 +18,44 @@ export default function App() {
   const [result, setResult] = useState<VerificationResult | null>(null);
 
   const handleScanSuccess = async (decodedText: string) => {
-    if (status !== 'idle') return; // Prevent multiple scans while processing
+    if (status !== 'idle') return;
 
     setStatus('verifying');
-    
-    // Simulate blockchain verification delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Mock verification logic based on scanned text (for demo purposes)
-    // In a real app, this would call a smart contract or backend API
-    const isValid = decodedText.length > 10 && !decodedText.includes('fake');
-    
-    if (isValid) {
-      setResult({
-        status: 'valid',
-        message: 'Ticket Authenticated',
-        txHash: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
-        timestamp: new Date().toISOString(),
-      });
-      setStatus('valid');
-    } else {
+    try {
+
+      // ✅ Parse QR data
+      const parsed = JSON.parse(decodedText);
+      const ticketId = parsed.ticketId;
+      const wallet = parsed.wallet;
+
+      // ✅ Call backend API
+      const response = await verifyTicket(ticketId, wallet);
+
+      if (response.valid) {
+        setResult({
+          status: 'valid',
+          message: 'Ticket Authenticated',
+          txHash: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
+          timestamp: new Date().toISOString(),
+        });
+        setStatus('valid');
+
+      } else {
+        setResult({
+          status: 'invalid',
+          message: 'Invalid or Counterfeit Ticket',
+        });
+        setStatus('invalid');
+      }
+
+    } catch (error) {
+
       setResult({
         status: 'invalid',
-        message: 'Invalid or Counterfeit Ticket',
+        message: 'Invalid QR Format',
       });
+
       setStatus('invalid');
     }
   };
@@ -119,7 +134,6 @@ export default function App() {
               className="w-full flex flex-col items-center gap-8"
             >
               <div className="w-full p-8 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col items-center text-center gap-6 relative overflow-hidden">
-                {/* Background glow */}
                 <div className={`absolute -top-24 -left-24 w-48 h-48 rounded-full blur-3xl opacity-20 ${status === 'valid' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
                 
                 <div className={`p-4 rounded-full ${status === 'valid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
